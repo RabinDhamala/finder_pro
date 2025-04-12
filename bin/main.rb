@@ -4,29 +4,57 @@ require_relative '../lib/finder_pro_cli'
 include FinderProCli::Services
 include FinderProCli::Models
 
-FILE_PATH = File.expand_path("../clients.json", __dir__)
-
-clients = ClientLoader.load(FILE_PATH)
-
 def display_client(client)
   puts "#{client.id}. #{client.full_name} - #{client.email}"
 end
 
 def print_help
   puts <<~HELP
+    📘 FinderPro CLI - Help
+
     Usage:
-      ruby bin/main.rb search <field> <query>   # Search clients by any field
-      ruby bin/main.rb duplicates               # Find duplicate emails
+      ruby bin/main.rb [--file path/to/file.json] search <field> <query>
+      ruby bin/main.rb [--file path/to/file.json] duplicates
+
+    Examples:
+      ruby bin/main.rb search email john@example.com
+      ruby bin/main.rb --file data/clients_backup.json search full_name Jane
+      ruby bin/main.rb duplicates
+
+    Notes:
+      - If --file is not provided, defaults to clients.json
+      - Fields can be full_name, email, id, etc.
   HELP
 end
 
-command = ARGV[0]
-arg = ARGV[1]
+# Extract file option if passed
+args = ARGV.dup
+data_file = "data/clients.json"  # default
+
+if args.include?("--help") || args.empty?
+  print_help
+  exit
+end
+
+if args[0] == "--file"
+  data_file = args[1]
+  args.shift(2)
+end
+
+# Load data from JSON file
+begin
+  clients = ClientLoader.load(data_file)
+rescue Errno::ENOENT
+  puts "File not found: #{data_file}"
+  exit 1
+end
+
+command = args[0]
 
 case command
 when "search"
-  field = ARGV[1]
-  query = ARGV[2..].join(" ") # support multi-word names
+  field = args[1]
+  query = args[2..].join(" ")
 
   if field.nil? || query.strip.empty?
     puts "Usage: ruby bin/main.rb search <field> <query>"
