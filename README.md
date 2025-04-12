@@ -181,4 +181,4 @@ bundle exec rspec spec/services/...   # Run specific test file
 
 ## 👨‍💻 Author
 
-Built by [Your Name] — [GitHub](https://github.com/RabinDhamala)
+Built by Rabin Dhamala — [GitHub](https://github.com/RabinDhamala)
