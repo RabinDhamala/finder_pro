@@ -170,12 +170,33 @@ bundle exec rspec spec/services/...   # Run specific test file
 
 ## 🚧 Future Improvements
 
+### Immediate Changes
 - [ ] Add versioning support for the API (`/v1/...`)
 - [ ] Persist uploaded data to disk or use DB
 - [ ] Add authentication layer for REST API
 - [ ] Dockerize the app for easier deployment
 - [ ] CLI enhancements: export results to CSV/JSON
 - [ ] Improve Swagger docs (add request/response examples)
+
+### Changes for Scalability
+- [ ] Data Storage: Ditch Flat JSON
+    At scale, this will not perform well or support concurrent writes/searches.
+    Instead use:
+    1. PostgreSQL (or any robust relational DB)
+    2. Or, for advanced search: Elasticsearch
+- [ ] Background Processing
+    If duplicate email detection is heavy, don’t run it synchronously:
+    1. Use Sidekiq or Resque to offload long tasks.
+    2. Return a job_id and let the client poll for status or send a webhook when done.
+- [ ] Caching
+    1. Cache frequent searches with Redis or Rails.cache-style memory caching.
+    2. If the dataset is huge but not updated often, cache the whole list for fast reads
+- [ ] Cloud Infrastructure
+    1. Use horizontal scaling: multiple app instances behind a load balancer.
+    2. Auto-scaling for traffic spikes.
+- [ ] Monitoring and Observability
+    1. Add logging with Lograge, Bugsnag, Rollbar, etc.
+    2. Use Prometheus + Grafana or Datadog for metrics.
 
 ---
 
