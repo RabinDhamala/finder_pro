@@ -13,13 +13,13 @@ def print_help
     📘 FinderPro CLI - Help
 
     Usage:
-      ruby bin/main.rb [--file path/to/file.json] search <field> <query>
-      ruby bin/main.rb [--file path/to/file.json] duplicates
+      ruby bin/cli.rb [--file path/to/file.json] search <field> <query>
+      ruby bin/cli.rb [--file path/to/file.json] duplicates
 
     Examples:
-      ruby bin/main.rb search email john@example.com
-      ruby bin/main.rb --file data/clients_backup.json search full_name Jane
-      ruby bin/main.rb duplicates
+      ruby bin/cli.rb search email john@example.com
+      ruby bin/cli.rb --file data/clients_backup.json search full_name Jane
+      ruby bin/cli.rb duplicates
 
     Notes:
       - If --file is not provided, defaults to clients.json
@@ -54,10 +54,10 @@ command = args[0]
 case command
 when "search"
   field = args[1]
-  query = args[2..].join(" ")
+  query = (args[2..] || []).join(" ")
 
   if field.nil? || query.strip.empty?
-    puts "Usage: ruby bin/main.rb search <field> <query>"
+    print_help
     exit
   end
 
