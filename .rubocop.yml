@@ -1,0 +1,63 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  Exclude:
+    - 'bin/*'
+    - 'db/schema.rb'
+    - 'node_modules/**/*'
+    - 'public/**/*'
+    - 'vendor/**/*'
+    - 'docs/**/*'
+
+Layout/LineLength:
+  Max: 100
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+
+Style/Documentation:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/ClassLength:
+  Max: 100
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'test/**/*'
+
+Metrics/ModuleLength:
+  Max: 100
+
+Naming/VariableName:
+  AllowedNames: ['q', 'id', 'e']
+
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: true
+
+Style/HashSyntax:
+  EnforcedStyle: ruby19
+
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Lint/UselessAssignment:
+  Enabled: true
+
+Lint/UnusedMethodArgument:
+  Enabled: true
+
+Style/ExplicitBlockArgument:
+  Enabled: true
