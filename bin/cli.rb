@@ -18,7 +18,7 @@ def print_help
 
     Examples:
       ruby bin/cli.rb search email john@example.com
-      ruby bin/cli.rb --file data/clients_backup.json search full_name Jane
+      ruby bin/cli.rb --file data/clients_custom.json search full_name Jane
       ruby bin/cli.rb duplicates
 
     Notes:

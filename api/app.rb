@@ -4,8 +4,8 @@ require 'sinatra/base'
 require 'json'
 require_relative '../lib/finder_pro'
 
-module APP
-  class API < Sinatra::Base
+module API
+  class APP < Sinatra::Base
     configure :test do
       disable :protection # Disable protection in test env
     end
