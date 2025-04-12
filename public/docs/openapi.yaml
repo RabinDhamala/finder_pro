@@ -1,0 +1,74 @@
+openapi: 3.0.0
+info:
+  title: ShiftCare Client API
+  version: 1.0.0
+  description: A simple API to search and manage client data
+
+paths:
+  /query:
+    get:
+      summary: Search clients
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: field
+          in: query
+          required: false
+          schema:
+            type: string
+            default: full_name
+      responses:
+        "200":
+          description: List of matching clients
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Client'
+
+  /duplicates:
+    get:
+      summary: Show duplicate emails
+      responses:
+        "200":
+          description: Duplicate clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Client'
+
+  /upload:
+    post:
+      summary: Upload client data
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Upload success
+
+components:
+  schemas:
+    Client:
+      type: object
+      properties:
+        id: { type: integer }
+        full_name: { type: string }
+        email: { type: string }
