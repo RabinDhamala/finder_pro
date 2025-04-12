@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FinderProCli
+module FinderPro
   module Models
     class Client
       attr_reader :id, :full_name, :email

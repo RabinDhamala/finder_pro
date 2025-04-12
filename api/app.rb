@@ -2,9 +2,9 @@
 
 require 'sinatra/base'
 require 'json'
-require_relative '../lib/finder_pro_cli'
+require_relative '../lib/finder_pro'
 
-module FinderProCli
+module APP
   class API < Sinatra::Base
     configure :test do
       disable :protection # Disable protection in test env
@@ -16,12 +16,17 @@ module FinderProCli
 
     configure do
       enable :logging
-      FinderProCli::Services::ClientStore.load_from_file('data/clients.json')
+      FinderPro::Services::ClientStore.load_from_file('data/clients.json')
     end
 
     helpers do
       def clients
-        FinderProCli::Services::ClientStore.all
+        FinderPro::Services::ClientStore.all
+      end
+
+      def json_error(status, message, details = nil)
+        status status
+        { error: message, details: details }.to_json
       end
     end
 
@@ -32,12 +37,9 @@ module FinderProCli
       page = (params['page'] || 1).to_i
       per_page = (params['per_page'] || 10).to_i
 
-      if query.nil? || query.strip.empty?
-        status 400
-        return { error: 'Missing query param `q`' }.to_json
-      end
+      return json_error(400, 'Missing query param `q`') if query.nil? || query.strip.empty?
 
-      matches = FinderProCli::Services::Searcher.search(clients, field, query)
+      matches = FinderPro::Services::Searcher.search(clients, field, query)
       paginated = matches.slice((page - 1) * per_page, per_page) || []
 
       {
@@ -49,16 +51,32 @@ module FinderProCli
     end
 
     get '/duplicates' do
-      logger.info 'Handling /duplicates request'
-      content_type :json
-      dups = FinderProCli::Services::DuplicateFinder.find_duplicates(clients)
-      # Flatten and convert to array of hashes
-      duplicates = dups.values.flatten.map(&:to_h)
+      page = (params['page'] || 1).to_i
+      per_page = (params['per_page'] || 10).to_i
 
-      {
-        count: duplicates.size,
-        duplicates: duplicates,
-      }.to_json
+      begin
+        duplicates = FinderPro::Services::DuplicateFinder.find_duplicates(clients)
+
+        # Paginate the duplicates
+        paginated_duplicates = duplicates
+                               .flat_map { |_email, clients_array| clients_array }
+                               .then do |array|
+          FinderPro::Services::Pagination.paginate(array, page, per_page)
+        end
+
+        {
+          total: duplicates.values.flatten.size,
+          page: page,
+          per_page: per_page,
+          results: paginated_duplicates.map(&:to_h),
+        }.to_json
+      rescue JSON::ParserError => e
+        status 500
+        json_error(500, 'Invalid JSON data', e.message)
+      rescue StandardError => e
+        status 500
+        json_error(500, 'Internal Server Error', e.message)
+      end
     end
 
     post '/upload' do
@@ -66,7 +84,7 @@ module FinderProCli
 
       unless params[:file] && params[:file][:tempfile]
         status 400
-        return { error: 'Missing file upload' }.to_json
+        return json_error(400, 'Missing file upload')
       end
 
       begin
@@ -74,19 +92,19 @@ module FinderProCli
 
         unless uploaded.is_a?(Array)
           status 422
-          return { error: 'Expected an array of client objects' }.to_json
+          return json_error(422, 'Expected an array of client objects')
         end
 
         valid_clients = []
         errors = []
 
         uploaded.each_with_index do |data, idx|
-          unless FinderProCli::Models::Client.valid_data?(data)
+          unless FinderPro::Models::Client.valid_data?(data)
             errors << { index: idx, data: data, error: 'Invalid client fields' }
             next
           end
 
-          valid_clients << FinderProCli::Models::Client.new(**data)
+          valid_clients << FinderPro::Models::Client.new(**data)
         end
 
         if errors.any?
@@ -98,14 +116,14 @@ module FinderProCli
           }.to_json
         end
 
-        FinderProCli::Services::ClientStore.replace(valid_clients)
+        FinderPro::Services::ClientStore.replace(valid_clients)
         { message: 'Upload successful', count: valid_clients.size }.to_json
       rescue JSON::ParserError => e
         status 422
-        { error: 'Malformed JSON', details: e.message }.to_json
+        json_error(422, 'Malformed JSON', e.message)
       rescue StandardError => e
         status 500
-        { error: 'Server error', details: e.message }.to_json
+        json_error(500, 'Server error', e.message)
       end
     end
 

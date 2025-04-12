@@ -9,4 +9,12 @@ clients:
 
   - id: 3
     full_name: Johnny Appleseed
-    email: johnny@sample.com
+    email: john@example.com
+
+  - id: 4
+    full_name: Alice Johnson
+    email: alice@example.com
+
+  - id: 5
+    full_name: Bob Brown
+    email: bob@example.com

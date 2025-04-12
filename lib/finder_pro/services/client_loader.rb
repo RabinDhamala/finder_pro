@@ -3,7 +3,7 @@
 require 'json'
 require_relative '../models/client'
 
-module FinderProCli
+module FinderPro
   module Services
     class ClientLoader
       def self.load(file_path)

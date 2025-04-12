@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/finder_pro_cli'
-include FinderProCli::Services
-include FinderProCli::Models
+require_relative '../lib/finder_pro'
+include FinderPro::Services
+include FinderPro::Models
 
 def display_client(client)
   puts "#{client.id}. #{client.full_name} - #{client.email}"
