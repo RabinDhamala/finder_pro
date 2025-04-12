@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module FinderProCli
+module FinderPro
   module Services
     class Searcher
       def self.search(clients, field, query)

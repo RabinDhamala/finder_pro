@@ -1,0 +1,12 @@
+clients:
+  - id: 1
+    full_name: John Doe
+    email: john@example.com
+
+  - id: 2
+    full_name: Jane Smith
+    email: jane@example.com
+
+  - id: 3
+    full_name: Johnny Appleseed
+    email: johnny@sample.com

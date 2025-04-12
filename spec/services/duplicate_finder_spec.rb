@@ -1,17 +1,18 @@
 # frozen_string_literal: true
 
 require 'rspec'
-require_relative '../../lib/finder_pro_cli/models/client'
-require_relative '../../lib/finder_pro_cli/services/duplicate_finder'
+require 'json'
+require_relative '../../lib/finder_pro/models/client'
+require_relative '../../lib/finder_pro/services/duplicate_finder'
+require_relative '../support/fixtures_helper'
 
-RSpec.describe FinderProCli::Services::DuplicateFinder do
+RSpec.describe FinderPro::Services::DuplicateFinder do
+  include FixturesHelper
+
   let(:clients) do
-    [
-      FinderProCli::Models::Client.new(id: 1, full_name: 'John Doe', email: 'john@example.com'),
-      FinderProCli::Models::Client.new(id: 2, full_name: 'Jane Smith', email: 'jane@example.com'),
-      FinderProCli::Models::Client.new(id: 3, full_name: 'Johnny Appleseed',
-                                       email: 'john@example.com'),
-    ]
+    load_yaml_fixture('duplicate_clients.yml')['clients'].map do |data|
+      FinderPro::Models::Client.new(**data.transform_keys(&:to_sym))
+    end
   end
 
   it 'finds clients with duplicate emails' do
@@ -22,6 +23,19 @@ RSpec.describe FinderProCli::Services::DuplicateFinder do
 
   it 'returns empty hash if no duplicates found' do
     unique_clients = clients.uniq(&:email)
+    duplicates = described_class.find_duplicates(unique_clients)
+    expect(duplicates).to eq({})
+  end
+
+  it 'correctly identifies multiple clients with the same email' do
+    duplicates = described_class.find_duplicates(clients)
+    expect(duplicates['john@example.com'].size).to eq(2)
+    expect(duplicates['john@example.com'].map(&:full_name)).to contain_exactly('John Doe',
+                                                                               'Johnny Appleseed')
+  end
+
+  it 'does not find duplicates if all emails are unique' do
+    unique_clients = clients.reject { |client| client.email == 'john@example.com' }
     duplicates = described_class.find_duplicates(unique_clients)
     expect(duplicates).to eq({})
   end
