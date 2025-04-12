@@ -18,6 +18,12 @@ module FinderProCli
           email: email,
         }
       end
+
+      def self.valid_data?(data)
+        data[:id].is_a?(Integer) &&
+          data[:full_name].to_s.strip != '' &&
+          data[:email].to_s.match?(/\A[^@\s]+@[^@\s]+\z/)
+      end
     end
   end
 end
