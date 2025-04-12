@@ -21,8 +21,9 @@ Dir[File.join(__dir__, '**', '*.rb')].each do |file|
   require file unless file.end_with?('_spec.rb')
 end
 
+ENV['RACK_ENV'] = 'test'
+
 require 'rack/test'
-require_relative '../api/app' # or wherever your API is defined
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
@@ -106,8 +107,4 @@ RSpec.configure do |config|
   #   # test failures related to randomization by passing the same `--seed` value
   #   # as the one that triggered the failure.
   #   Kernel.srand config.seed
-end
-
-def app
-  FinderProCli::API
 end
